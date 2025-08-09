@@ -80,6 +80,7 @@ If you experience any errors while trying to install kickstart, run `:checkhealt
 
 I hope you enjoy your Neovim journey,
 - TJ
+192.168.10.57 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBO840PXmEpw/mRio7fnYYKQkBVRTOzTEzXmRAJAFFcWzxkNkvflQ4UV/03XEnwE7LMN19FMD84ZGao8oMmb2tQw=
 
 P.S. You can delete this when you're done too. It's your config now! :)
 --]]
@@ -189,6 +190,7 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 -- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
 -- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
 -- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
+-- Custom, bind caps to esc
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
@@ -248,6 +250,7 @@ rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
+  'wakatime/vim-wakatime',
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -382,6 +385,106 @@ require('lazy').setup({
       { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
     },
     config = function()
+      require('neo-tree').setup {
+        close_if_last_window = false,
+        popup_border_style = 'rounded',
+        enable_git_status = true,
+        enable_diagnostics = true,
+
+        -- This is the key configuration for floating window
+        window = {
+          position = 'float',
+          width = 60, -- Width of the floating window
+          height = 25, -- Height of the floating window
+          popup = {
+            size = {
+              height = '80%',
+              width = '50%',
+            },
+            position = '50%', -- Center the window
+          },
+          mappings = {
+            ['<space>'] = {
+              'toggle_node',
+              nowait = false,
+            },
+            ['<cr>'] = 'open',
+            ['<esc>'] = 'cancel',
+            ['P'] = { 'toggle_preview', config = { use_float = true, use_image_nvim = true } },
+            ['l'] = 'focus_preview',
+            ['S'] = 'open_split',
+            ['s'] = 'open_vsplit',
+            ['t'] = 'open_tabnew',
+            ['w'] = 'open_with_window_picker',
+            ['C'] = 'close_node',
+            ['z'] = 'close_all_nodes',
+            ['a'] = {
+              'add',
+              config = {
+                show_path = 'none',
+              },
+            },
+            ['A'] = 'add_directory',
+            ['d'] = 'delete',
+            ['r'] = 'rename',
+            ['y'] = 'copy_to_clipboard',
+            ['x'] = 'cut_to_clipboard',
+            ['p'] = 'paste_from_clipboard',
+            ['c'] = 'copy',
+            ['m'] = 'move',
+            ['q'] = 'close_window',
+            ['R'] = 'refresh',
+            ['?'] = 'show_help',
+            ['<'] = 'prev_source',
+            ['>'] = 'next_source',
+            ['i'] = 'show_file_details',
+          },
+        },
+
+        filesystem = {
+          filtered_items = {
+            visible = false,
+            hide_dotfiles = true,
+            hide_gitignored = true,
+            hide_hidden = true,
+            hide_by_name = {
+              '.DS_Store',
+              'thumbs.db',
+            },
+          },
+          follow_current_file = {
+            enabled = false,
+            leave_dirs_open = false,
+          },
+          group_empty_dirs = false,
+          hijack_netrw_behavior = 'open_default',
+          use_libuv_file_watcher = false,
+        },
+
+        buffers = {
+          follow_current_file = {
+            enabled = true,
+            leave_dirs_open = false,
+          },
+          group_empty_dirs = true,
+          show_unloaded = true,
+        },
+
+        git_status = {
+          window = {
+            position = 'float',
+            mappings = {
+              ['A'] = 'git_add_all',
+              ['gu'] = 'git_unstage_file',
+              ['ga'] = 'git_add_file',
+              ['gr'] = 'git_revert_file',
+              ['gc'] = 'git_commit',
+              ['gp'] = 'git_push',
+              ['gg'] = 'git_commit_and_push',
+            },
+          },
+        },
+      }
       -- Telescope is a fuzzy finder that comes with a lot of different things that
       -- it can fuzzy find! It's more than just a "file finder", it can search
       -- many different aspects of Neovim, your workspace, LSP, and more!
@@ -537,23 +640,23 @@ require('lazy').setup({
 
           -- Rename the variable under your cursor.
           --  Most Language Servers support renaming across files, etc.
-          map('grn', vim.lsp.buf.rename, '[R]e[n]ame')
+          map('gn', vim.lsp.buf.rename, '[R]e[n]ame')
 
           -- Execute a code action, usually your cursor needs to be on top of an error
           -- or a suggestion from your LSP for this to activate.
-          map('gra', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
+          map('ga', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
 
           -- Find references for the word under your cursor.
-          map('grr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+          map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
 
           -- Jump to the implementation of the word under your cursor.
           --  Useful when your language has ways of declaring types without an actual implementation.
-          map('gri', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+          map('gi', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
 
           -- Jump to the definition of the word under your cursor.
           --  This is where a variable was first declared, or where a function is defined, etc.
           --  To jump back, press <C-t>.
-          map('grd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+          map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
 
           -- WARN: This is not Goto Definition, this is Goto Declaration.
           --  For example, in C this would take you to the header.
@@ -570,7 +673,7 @@ require('lazy').setup({
           -- Jump to the type of the word under your cursor.
           --  Useful when you're not sure what type a variable is and you want to see
           --  the definition of its *type*, not where it was *defined*.
-          map('grt', require('telescope.builtin').lsp_type_definitions, '[G]oto [T]ype Definition')
+          map('gt', require('telescope.builtin').lsp_type_definitions, '[G]oto [T]ype Definition')
 
           -- This function resolves a difference between neovim nightly (version 0.11) and stable (version 0.10)
           ---@param client vim.lsp.Client
@@ -681,7 +784,9 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
+        ts_ls = {},
+        vue_ls = {},
+        svelte = {},
         --
 
         lua_ls = {
@@ -697,6 +802,15 @@ require('lazy').setup({
               -- diagnostics = { disable = { 'missing-fields' } },
             },
           },
+        },
+        eslint = {
+          on_attach = function(client, bufnr)
+            -- Auto-fix on save
+            vim.api.nvim_create_autocmd('BufWritePre', {
+              buffer = bufnr,
+              command = 'EslintFixAll',
+            })
+          end,
         },
       }
 
@@ -816,7 +930,7 @@ require('lazy').setup({
       keymap = {
         -- 'default' (recommended) for mappings similar to built-in completions
         --   <c-y> to accept ([y]es) the completion.
-        --    This will auto-import if your LSP supports it.
+        --    This will auto-import if your LSP supports it.in
         --    This will expand snippets if the LSP sent a snippet.
         -- 'super-tab' for tab to accept
         -- 'enter' for enter to accept
@@ -835,7 +949,7 @@ require('lazy').setup({
         -- <c-k>: Toggle signature help
         --
         -- See :h blink-cmp-config-keymap for defining your own keymap
-        preset = 'default',
+        preset = 'super-tab',
 
         -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
@@ -944,7 +1058,22 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = {
+        'bash',
+        'c',
+        'diff',
+        'html',
+        'lua',
+        'luadoc',
+        'markdown',
+        'markdown_inline',
+        'query',
+        'vim',
+        'vimdoc',
+        'svelte',
+        'javascript',
+        'typescript',
+      },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -977,7 +1106,7 @@ require('lazy').setup({
   -- require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
+  require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
@@ -1014,3 +1143,69 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+vim.opt.relativenumber = true
+
+-- custom functions
+vim.keymap.set('i', 'trc<Tab>', function()
+  local lines = {
+    'try {',
+    '  ',
+    '} catch (err: any) {',
+    '  console.error(err)',
+    '}',
+  }
+  vim.api.nvim_put(lines, 'l', true, true)
+  -- Move cursor to the try block
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Up><Up><Up><End>', true, false, true), 'n', false)
+end, { desc = 'Insert try-catch block' })
+
+-- Custom settings
+vim.g.netrw_bufsettings = 'noma nomod nu nobl nowrap ro'
+vim.g.netrw_bufsettings = 'noma nomod nu rnu nobl nowrap ro'
+
+-- error handling
+local diagnostic_winid = nil
+
+local function close_diagnostic()
+  if diagnostic_winid and vim.api.nvim_win_is_valid(diagnostic_winid) then
+    vim.api.nvim_win_close(diagnostic_winid, false)
+    diagnostic_winid = nil
+    vim.keymap.del('n', '<Esc>')
+  end
+end
+
+local function open_diagnostic_float()
+  vim.diagnostic.open_float()
+
+  vim.defer_fn(function()
+    for _, winid in pairs(vim.api.nvim_list_wins()) do
+      local bufnr = vim.api.nvim_win_get_buf(winid)
+      local bufname = vim.api.nvim_buf_get_name(bufnr)
+
+      if bufname == '' and vim.api.nvim_buf_get_option(bufnr, 'filetype') == '' then
+        diagnostic_winid = winid
+        vim.keymap.set('n', '<Esc>', close_diagnostic)
+        break
+      end
+    end
+  end, 10)
+end
+
+vim.keymap.set('n', '<leader>E', open_diagnostic_float)
+vim.keymap.set('n', '[d', function()
+  vim.lsp.diagnostic.goto_prev { float = true }
+end)
+vim.keymap.set('n', ']d', function()
+  vim.lsp.diagnostic.goto_next { float = true }
+end)
+
+-- go back
+vim.keymap.set('n', 'go', ':bprevious<CR>', { desc = 'Go to previous buffer in history' })
+-- jumps
+vim.keymap.set('n', '<leader>j', '20j', { desc = 'Jump 20 lines down' })
+vim.keymap.set('n', '<leader>k', '20k', { desc = 'Jump 20 lines up' })
+vim.keymap.set('n', '<leader>w', '$', { desc = 'easier jump to the end of the line' })
+vim.keymap.set('n', '<leader>b', '^', { desc = 'easier jumping to beginning of line' })
+
+-- n
+vim.keymap.set('n', '<leader>e', ':Neotree toggle<CR>')
